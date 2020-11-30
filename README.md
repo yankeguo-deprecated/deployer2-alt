@@ -116,6 +116,26 @@ vars:
   node_version: 12
 ```
 
+### 使用 Docker 镜像作为 build 环境
+
+如果要使用 Docker 镜像中的 `bash` 作为 `build` 脚本执行环境，而非使用当前主机的 `bash`，需要在默认环境或者其他环境中设置参数 `builder`
+
+```yaml
+builder:
+  image: acicn/node-builder:12
+  caches:
+    - /root/.npm
+```
+
+`deployer2` 会强制执行以下内容
+
+1. 把当前工作目录映射到容器内的 `/workspace` 目录
+2. 按照相同镜像共享缓存的逻辑，映射 `caches` 字段的目录到主机 `$HOME/.deployer2-builder-cache` 的子目录下
+2. 把 `build` 脚本渲染后映射到容器内的 `/deployer2-build-script.sh` 文件下
+3. 在 `/deployer2-build-script.sh` 脚本之前添加 `cd /workspace` 确保脚本能在容器内的 `/workspace` 目录下执行
+4. 在 `/deployer2-build-script.sh` 脚本末尾添加 `chown -R XXX:XXX /workspace` 将 `/workspace` 也就是当前工作目录的权限改回到宿主机用户
+5. 在容器内执行 `/deployer2-build-script.sh` 命令
+
 ### 完整示例
 
 以下示例仅用于完整展示 `deployer2` 的功能

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/guoyk93/tempfile"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -26,8 +25,7 @@ type Preset struct {
 
 func LoadPresetFromHome(cluster string, p *Preset) (err error) {
 	var home string
-	if home = os.Getenv("HOME"); len(home) == 0 {
-		err = errors.New("缺少环境变量 $HOME")
+	if home, err = os.UserHomeDir(); err != nil {
 		return
 	}
 	filename := filepath.Join(home, ".deployer2", "preset-"+cluster+".yml")

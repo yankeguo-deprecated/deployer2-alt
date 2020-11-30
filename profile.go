@@ -10,11 +10,17 @@ import (
 	"text/template"
 )
 
+type ProfileBuilder struct {
+	Image  string   `yaml:"image"`
+	Caches []string `yaml:"caches"`
+}
+
 type Profile struct {
 	Profile  string                 `yaml:"-"`
 	Resource UniversalResourceList  `yaml:"resource"`
 	Check    UniversalCheck         `yaml:"check"`
 	Build    []string               `yaml:"build"`
+	Builder  ProfileBuilder         `yaml:"builder"`
 	Package  []string               `yaml:"package"`
 	Vars     map[string]interface{} `yaml:"vars"`
 }

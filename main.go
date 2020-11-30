@@ -105,9 +105,16 @@ func main() {
 	log.Printf("写入打包文件: %s", filePackage)
 
 	// 执行构建脚本
-	log.Println("------------ 构建 ------------")
-	if err = cmds.Execute(fileBuild); err != nil {
-		return
+	if profile.Builder.Image != "" {
+		log.Println("------------ 使用容器构建 ------------")
+		if err = cmds.ExecuteInDocker(profile.Builder.Image, profile.Builder.Caches, fileBuild); err != nil {
+			return
+		}
+	} else {
+		log.Println("------------ 构建 ------------")
+		if err = cmds.Execute(fileBuild); err != nil {
+			return
+		}
 	}
 	log.Println("构建完成")
 
