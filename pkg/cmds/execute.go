@@ -73,9 +73,9 @@ func ExecuteInDocker(image string, caches []string, script string) (err error) {
 	if wd, err = os.Getwd(); err != nil {
 		return
 	}
-	args = append(args, "-v", "/workspace:"+wd)
+	args = append(args, "-v", wd+":/workspace")
 	// 挂载 /deployer2-build-script.sh
-	args = append(args, "-v", "/deployer2-build-script.sh:"+script)
+	args = append(args, "-v", script+":/deployer2-build-script.sh")
 	// 准备镜像和 bash -l 命令
 	args = append(args, image, "bash", "-l")
 
