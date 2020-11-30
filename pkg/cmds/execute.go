@@ -25,6 +25,9 @@ var (
 
 func sanitizePathToPathComponent(path string) string {
 	digest := md5.Sum([]byte(path))
+	if strings.HasPrefix(path, "/") {
+		path = strings.TrimPrefix(path, "/")
+	}
 	return regexpNonAlphaNumeric.ReplaceAllString(path, "-") + "-" + hex.EncodeToString(digest[:])
 }
 
