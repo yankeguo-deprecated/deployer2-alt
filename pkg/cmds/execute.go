@@ -63,7 +63,7 @@ func ExecuteInDocker(image string, caches []string, script string) (err error) {
 	}
 	// 准备 Docker 命令
 	name := "docker"
-	args := []string{"run"}
+	args := []string{"run", "-i"}
 	// 准备挂载命令
 	for _, mount := range mounts {
 		args = append(args, "-v", mount)
