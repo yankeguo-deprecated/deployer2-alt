@@ -17,6 +17,9 @@ import (
 
 const (
 	KubectlPatchRetries = 3
+
+	InDockerWorkspace = "/workspace"
+	InDockerScript    = "/deployer2-in-docker-script.sh"
 )
 
 var (
@@ -64,6 +67,15 @@ func ExecuteInDocker(image string, caches []string, script string) (err error) {
 	for _, cache := range caches {
 		mounts = append(mounts, filepath.Join(cacheBaseDir, sanitizePathToPathComponent(cache))+":"+cache)
 	}
+	// 映射 工作目录
+	var wd string
+	if wd, err = os.Getwd(); err != nil {
+		return
+	}
+	mounts = append(mounts, wd+":"+InDockerWorkspace)
+	// 映射主脚本
+	mounts = append(mounts, script+":"+InDockerScript)
+
 	// 准备 Docker 命令
 	name := "docker"
 	args := []string{"run", "-i"}
@@ -71,25 +83,22 @@ func ExecuteInDocker(image string, caches []string, script string) (err error) {
 	for _, mount := range mounts {
 		args = append(args, "-v", mount)
 	}
-	// 挂载 /workspace
-	var wd string
-	if wd, err = os.Getwd(); err != nil {
-		return
-	}
-	args = append(args, "-v", wd+":/workspace")
-	// 挂载 /deployer2-build-script.sh
-	args = append(args, "-v", script+":/deployer2-build-script.sh")
 	// 准备镜像和 bash -l 命令
 	args = append(args, image, "bash", "-l")
 
 	// 准备 stdin
 	buf := &bytes.Buffer{}
-	buf.WriteString("#!/bin/bash\n")
-	buf.WriteString("set -eux\n")
-	buf.WriteString("cd /workspace\n")
-	buf.WriteString("chmod +x /deployer2-build-script.sh\n")
-	buf.WriteString("/deployer2-build-script.sh\n")
-	buf.WriteString(fmt.Sprintf("chown -R %d:%d /workspace\n", os.Getuid(), os.Getgid()))
+	_, _ = fmt.Fprintf(buf, "#!/bin/bash\n")
+	_, _ = fmt.Fprintf(buf, "set -eux\n")
+	_, _ = fmt.Fprintf(buf, "cd '%s'\n", InDockerWorkspace)
+	_, _ = fmt.Fprintf(buf, "chmod +x '%s'\n", InDockerScript)
+	_, _ = fmt.Fprintf(buf, "'%s'\n", InDockerScript)
+	_, _ = fmt.Fprintf(buf, "chown -R %d:%d '%s'\n", os.Getuid(), os.Getgid(), InDockerWorkspace)
+
+	log.Println("使用镜像: ", image)
+	for _, mount := range mounts {
+		log.Println("映射路径: ", mount)
+	}
 
 	log.Printf("执行: %s %s", name, strings.Join(args, " "))
 	cmd := exec.Command(name, args...)
