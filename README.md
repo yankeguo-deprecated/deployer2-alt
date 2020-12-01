@@ -123,6 +123,8 @@ vars:
 ```yaml
 builder:
   image: acicn/node-builder:12
+  # 缓存组，默认为 default，具有相同缓存组的任务，会使用相同的文件夹
+  cacheGroup: biz
   caches:
     - /root/.npm
 ```
@@ -130,7 +132,7 @@ builder:
 `deployer2` 会强制执行以下内容
 
 1. 把当前工作目录映射到容器内的 `/workspace` 目录
-2. 按照相同镜像共享缓存的逻辑，映射 `caches` 字段的目录到主机 `$HOME/.deployer2-builder-cache` 的子目录下
+2. 映射 `caches` 字段的目录到主机 `$HOME/.deployer2-builder-cache/biz` 的子目录下
 2. 把 `build` 脚本渲染后映射到容器内的 `/deployer2-build-script.sh` 文件下
 3. 在 `/deployer2-build-script.sh` 脚本之前添加 `cd /workspace` 确保脚本能在容器内的 `/workspace` 目录下执行
 4. 在 `/deployer2-build-script.sh` 脚本末尾添加 `chown -R XXX:XXX /workspace` 将 `/workspace` 也就是当前工作目录的权限改回到宿主机用户

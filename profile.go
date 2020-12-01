@@ -11,8 +11,9 @@ import (
 )
 
 type ProfileBuilder struct {
-	Image  string   `yaml:"image"`
-	Caches []string `yaml:"caches"`
+	Image      string   `yaml:"image"`
+	CacheGroup string   `yaml:"cacheGroup"`
+	Caches     []string `yaml:"caches"`
 }
 
 type Profile struct {

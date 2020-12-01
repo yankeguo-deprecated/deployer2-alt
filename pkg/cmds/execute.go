@@ -45,20 +45,11 @@ func Execute(name string, args ...string) (err error) {
 	return
 }
 
-func ExecuteInDocker(image string, caches []string, script string) (err error) {
-	// 计算基础缓存目录
-	var home string
-	if home, err = os.UserHomeDir(); err != nil {
-		return
-	}
-	cacheBaseDir := filepath.Join(home, ".deployer2-builder-cache", sanitizePathToPathComponent(image))
-	if err = os.MkdirAll(cacheBaseDir, 0755); err != nil {
-		return
-	}
+func ExecuteInDocker(image string, cacheDir string, caches []string, script string) (err error) {
 	// 将 caches 换算为 mounts
 	var mounts []string
 	for _, cache := range caches {
-		mounts = append(mounts, filepath.Join(cacheBaseDir, sanitizePathToPathComponent(cache))+":"+cache)
+		mounts = append(mounts, filepath.Join(cacheDir, sanitizePathToPathComponent(cache))+":"+cache)
 	}
 	// 映射 工作目录
 	var wd string
@@ -68,7 +59,6 @@ func ExecuteInDocker(image string, caches []string, script string) (err error) {
 	mounts = append(mounts, wd+":"+InDockerWorkspace)
 	// 映射主脚本
 	mounts = append(mounts, script+":"+InDockerScript)
-
 	// 准备 Docker 命令
 	name := "docker"
 	args := []string{"run", "-i"}

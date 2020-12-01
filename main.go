@@ -9,6 +9,7 @@ import (
 	"github.com/guoyk93/tempfile"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -107,7 +108,20 @@ func main() {
 	// 执行构建脚本
 	if profile.Builder.Image != "" {
 		log.Println("------------ 使用容器构建 ------------")
-		if err = cmds.ExecuteInDocker(profile.Builder.Image, profile.Builder.Caches, fileBuild); err != nil {
+		cacheGroup := profile.Builder.CacheGroup
+		if cacheGroup == "" {
+			cacheGroup = "default"
+		}
+		var home string
+		if home, err = os.UserHomeDir(); err != nil {
+			return
+		}
+		if err = cmds.ExecuteInDocker(
+			profile.Builder.Image,
+			filepath.Join(home, ".deployer2-builder-cache", cacheGroup),
+			profile.Builder.Caches,
+			fileBuild,
+		); err != nil {
 			return
 		}
 	} else {
