@@ -61,7 +61,7 @@ func ExecuteInDocker(image string, cacheDir string, caches []string, script stri
 	mounts = append(mounts, script+":"+InDockerScript)
 	// 准备 Docker 命令
 	name := "docker"
-	args := []string{"run", "-i"}
+	args := []string{"run", "-i", "--rm", "--network", "host", "--ipc", "host", "--pid", "host"}
 	// 准备挂载命令
 	for _, mount := range mounts {
 		args = append(args, "-v", mount)
