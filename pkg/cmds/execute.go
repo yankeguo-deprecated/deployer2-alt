@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/gofrs/flock"
 	"log"
 	"os"
 	"os/exec"
@@ -56,12 +55,6 @@ func ExecuteInDocker(image string, caches []string, script string) (err error) {
 	if err = os.MkdirAll(cacheBaseDir, 0755); err != nil {
 		return
 	}
-	// 使用 filelock 防止 cache 目录被同时多个容器使用
-	fileLock := flock.New(filepath.Join(cacheBaseDir, "lock"))
-	if err = fileLock.Lock(); err != nil {
-		return
-	}
-	defer fileLock.Unlock()
 	// 将 caches 换算为 mounts
 	var mounts []string
 	for _, cache := range caches {
