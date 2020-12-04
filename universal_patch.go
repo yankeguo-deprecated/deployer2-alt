@@ -31,7 +31,7 @@ func CreateUniversalPatch(preset *Preset, profile *Profile, workload *UniversalW
 		secret := corev1.LocalObjectReference{Name: strings.TrimSpace(name)}
 		p.Spec.Template.Spec.ImagePullSecrets = append(p.Spec.Template.Spec.ImagePullSecrets, secret)
 	}
-	if workload.IsInit {
+	if workload.Labels.Init {
 		container := corev1.Container{
 			Image:           imageName,
 			Name:            workload.Container,
@@ -70,8 +70,10 @@ func CreateUniversalPatch(preset *Preset, profile *Profile, workload *UniversalW
 			container.Resources.Requests[corev1.ResourceMemory],
 				container.Resources.Limits[corev1.ResourceMemory] = mem.AsMEM()
 		}
-		container.LivenessProbe = profile.Check.GenerateLivenessProbe()
-		container.ReadinessProbe = profile.Check.GenerateReadinessProbe()
+		if !workload.Labels.NoCheck {
+			container.LivenessProbe = profile.Check.GenerateLivenessProbe()
+			container.ReadinessProbe = profile.Check.GenerateReadinessProbe()
+		}
 		p.Spec.Template.Spec.Containers = append(p.Spec.Template.Spec.Containers, container)
 	}
 	return p
