@@ -31,13 +31,14 @@ func main() {
 	log.SetPrefix("[deployer2] ")
 
 	var (
-		optManifest   string
-		optImage      string
-		optProfile    string
-		optWorkloads  UniversalWorkloads
-		optCPU        UniversalResource
-		optMEM        UniversalResource
-		optSkipDeploy bool
+		optManifest      string
+		optImage         string
+		optProfile       string
+		optWorkloads     UniversalWorkloads
+		optCPU           UniversalResource
+		optMEM           UniversalResource
+		optSkipDeploy    bool
+		optIgnoreBuilder bool
 
 		imageNames   ImageNames
 		imageTracker = image_tracker.New()
@@ -47,6 +48,7 @@ func main() {
 	flag.StringVar(&optImage, "image", "", "镜像名")
 	flag.StringVar(&optProfile, "profile", "", "指定环境名")
 	flag.BoolVar(&optSkipDeploy, "skip-deploy", false, "跳过部署流程")
+	flag.BoolVar(&optIgnoreBuilder, "ignore-builder", false, "don't use builder image")
 	flag.Var(&optWorkloads, "workload", "指定目标工作负载，格式为 \"CLUSTER/NAMESPACE/TYPE/NAME[/CONTAINER]\"")
 	flag.Var(&optCPU, "cpu", "指定 CPU 配额，格式为 \"MIN:MAX\"，单位为 m (千分之一核心)")
 	flag.Var(&optMEM, "mem", "指定 MEM 配额，格式为 \"MIN:MAX\"，单位为 Mi (兆字节)")
@@ -106,7 +108,7 @@ func main() {
 	log.Printf("写入打包文件: %s", filePackage)
 
 	// 执行构建脚本
-	if profile.Builder.Image != "" {
+	if profile.Builder.Image != "" && !optIgnoreBuilder {
 		log.Println("------------ 使用容器构建 ------------")
 		cacheGroup := profile.Builder.CacheGroup
 		if cacheGroup == "" {
