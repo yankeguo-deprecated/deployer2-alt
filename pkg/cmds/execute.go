@@ -66,8 +66,8 @@ func ExecuteInDocker(image string, cacheDir string, caches []string, script stri
 	for _, mount := range mounts {
 		args = append(args, "-v", mount)
 	}
-	// 准备镜像和 bash -l 命令
-	args = append(args, image, "bash", "-l")
+	// 准备镜像和 bash 命令
+	args = append(args, image, "bash")
 
 	// 准备 stdin
 	buf := &bytes.Buffer{}
