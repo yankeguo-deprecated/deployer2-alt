@@ -56,9 +56,9 @@ func main() {
 
 	// 从 $JOB_NAME 获取 image 和 profile 信息
 	if optImage == "" || optProfile == "" {
-		envJobName := strings.TrimSpace(os.Getenv("JOB_NAME"))
+		envJobName := strings.TrimSpace(os.Getenv("CCI_JOB_NAME"))
 		if envJobName == "" {
-			envJobName = strings.TrimSpace(os.Getenv("CCI_JOB_NAME"))
+			envJobName = strings.TrimSpace(os.Getenv("JOB_NAME"))
 		}
 		if jobNameSplits := strings.Split(envJobName, "."); len(jobNameSplits) == 2 {
 			if optImage == "" {
@@ -76,10 +76,10 @@ func main() {
 	// 从 $BUILD_NUMBER 决定标签
 	buildNumber := strings.TrimSpace(os.Getenv("GIT_COMMIT_SHORT"))
 	if buildNumber == "" {
-		buildNumber = strings.TrimSpace(os.Getenv("BUILD_NUMBER"))
+		buildNumber = strings.TrimSpace(os.Getenv("CI_BUILD_NUMBER"))
 	}
 	if buildNumber == "" {
-		buildNumber = strings.TrimSpace(os.Getenv("CI_BUILD_NUMBER"))
+		buildNumber = strings.TrimSpace(os.Getenv("BUILD_NUMBER"))
 	}
 	if buildNumber != "" {
 		imageNames = append(imageNames, optImage+":"+optProfile+"-build-"+buildNumber)
